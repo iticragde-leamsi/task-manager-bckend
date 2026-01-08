@@ -1,6 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Task, Category
 from .serializers import TaskSerializer, CategorySerializer
@@ -29,6 +30,8 @@ class TaskListCreateView(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
+        if not serializer.validated_data.get('color'):
+            serializer.validated_data['color'] = generate_unique_color()
         serializer.save(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
@@ -53,3 +56,17 @@ class TaskCompleteView(generics.UpdateAPIView):
         task.status = Task.STATUS_DONE
         task.save()
         return Response(TaskSerializer(task).data)
+
+class LogoutView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh")
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception:
+                return Response({"error": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail": "Sesión cerrada correctamente"}, status=status.HTTP_200_OK)

@@ -27,8 +27,7 @@ Permite:
 1. **Clonar el repositorio**
 
 ````bash
-git clone https://github.com/tu_usuario/tu_repositorio.git
-cd tu_repositorio
+git clone [https://github.com/tu_usuario/tu_repositorio.git](https://github.com/iticragde-leamsi/task-manager-bckend.git)
 
 ## Init
 
